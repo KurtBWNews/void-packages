@@ -5,12 +5,14 @@ Posted as-is, no promises. Tested on one machine only.
 
 - Tested: 2026-10-07, x86_64 glibc
 - COSMIC version built: 1.0.8 (cosmic-wallpapers 1.0.0, cosmic-theme-editor 1).
-  The fork credited below has since moved its master branch to 1.5.0; I have
-  not tested that.
+  The fork credited below has since moved to Codeberg
+  (https://codeberg.org/Bella109/void-packages). Its GitHub master had reached
+  1.5.0 when I last looked; I have not tested that.
 - Based on void-packages commit c8c61057d26 (mesa 26.2.4)
 - Starting point: the COSMIC templates from the COSMIC-Desktop branch of
-  MtFBella109/void-packages, rebased onto current upstream. Credit to that
-  author.
+  MtFBella109/void-packages on GitHub (the project has since moved to
+  https://codeberg.org/Bella109/void-packages), rebased onto current
+  upstream. Credit to that author.
 
 ## Build environment and effort
 
@@ -73,6 +75,10 @@ greetd with tuigreet (`sudo xbps-install greetd tuigreet`), configured in
 The cosmic-session package installs /usr/share/wayland-sessions/cosmic.desktop,
 which runs /usr/bin/start-cosmic.
 
+cosmic-greeter is not part of this branch. The fork author reports he could
+not get it working with elogind on Void, so a text greeter (tuigreet) is used
+here.
+
 ## Optional extras
 
 - iPhone file transfer with KDE Connect: `sudo xbps-install kdeconnect` works
@@ -84,6 +90,10 @@ which runs /usr/bin/start-cosmic.
   When everything is configured, the iOS app finds the COSMIC/Void box on its
   own. You may need to tap "Refresh devices" in the iOS app. Both devices must
   be on the same Wi-Fi network. This is the only issue I have noticed so far.
+- Prebuilt packages: the fork author also publishes an x86_64 binary
+  repository (glibc and musl); see the README at the Codeberg link above for
+  the current URL. I built from source and have not used it, so I cannot
+  vouch for it.
 
 ## Known issues
 
