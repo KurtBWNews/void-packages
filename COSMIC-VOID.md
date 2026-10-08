@@ -4,9 +4,13 @@ Working COSMIC (Wayland) session on Void Linux, built from source with xbps-src.
 Posted as-is, no promises. Tested on one machine only.
 
 - Tested: 2026-10-07, x86_64 glibc
+- COSMIC version built: 1.0.8 (cosmic-wallpapers 1.0.0, cosmic-theme-editor 1).
+  The fork credited below has since moved its master branch to 1.5.0; I have
+  not tested that.
 - Based on void-packages commit c8c61057d26 (mesa 26.2.4)
-- Starting point: the COSMIC templates from MtFBella109/void-packages,
-  rebased onto current upstream. Credit to that author.
+- Starting point: the COSMIC templates from the COSMIC-Desktop branch of
+  MtFBella109/void-packages, rebased onto current upstream. Credit to that
+  author.
 
 ## Build environment and effort
 
@@ -27,7 +31,9 @@ Posted as-is, no promises. Tested on one machine only.
    cosmic-desktop-full (included, not built or tested by me)
 2. pop-* packages needed by COSMIC: pop-fonts, pop-icons, pop-launcher,
    pop-sounds-theme
-3. Template fixes found while building:
+3. Template fixes found while building, against the 1.0.8 snapshot from the
+   COSMIC-Desktop branch of that fork. Its current master (1.5.0) has changed
+   these templates in ways that make the fixes unnecessary there:
    - cosmic-osd: use clang19-devel
    - cosmic-settings-daemon: add openssl-devel to makedepends
    - cosmic-wallpapers: add git to hostmakedepends
