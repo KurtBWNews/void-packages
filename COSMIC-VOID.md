@@ -12,7 +12,7 @@ Posted as-is, no promises. Tested on one machine only.
 - Starting point: the COSMIC templates from the COSMIC-Desktop branch of
   MtFBella109/void-packages on GitHub (the project has since moved to
   https://codeberg.org/Bella109/void-packages), rebased onto current
-  upstream. Credit to that author.
+  upstream. Credit to that author, who did much heavy lifting.
 
 ## Build environment and effort
 
@@ -86,7 +86,7 @@ here.
   `kdeconnect-app` and `kdeconnect-settings` from the launcher. Received files
   land in `~/Downloads`.
 - Launch order matters when sending from an iOS device: open the KDE Connect
-  app on the iOS device first, then launch KDE Connect on the Void machine.
+  app on the iOS device first, after ensuring you've installed KDE Connect on the Void machine.
   When everything is configured, the iOS app finds the COSMIC/Void box on its
   own. You may need to tap "Refresh devices" in the iOS app. Both devices must
   be on the same Wi-Fi network. This is the only issue I have noticed so far.
