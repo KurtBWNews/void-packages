@@ -39,6 +39,11 @@ Posted as-is, no promises. Tested on one machine only.
    - cosmic-osd: use clang19-devel
    - cosmic-settings-daemon: add openssl-devel to makedepends
    - cosmic-wallpapers: add git to hostmakedepends
+4. cosmic-session: a patch so start-cosmic starts PipeWire before the session
+   (see Known issues: cosmic-settings-daemon at 100% CPU)
+5. cosmic-monitor 1.1.0 (COSMIC's system monitor app; not part of the 1.0.8
+   release, added separately). Builds and runs, but its graphs draw in the
+   wrong place on this laptop (see Known issues)
 
 ## Building
 
@@ -97,6 +102,35 @@ here.
 
 ## Known issues
 
+- **cosmic-settings-daemon pins one CPU core at 100% from login.** Fixed in
+  this branch (cosmic-session 1.0.8_2); this is what to look for if you're on
+  an older build. Symptom: `top` shows cosmic-settings-daemon near 100%
+  (about 25% of total CPU on a 4-thread chip) for as long as you're logged
+  in. Cause: the daemon's sound code waits for the PulseAudio server
+  (pipewire-pulse) in a loop that never sleeps, and never stops if the
+  server wasn't running when the daemon started. cosmic-session starts the
+  daemon before it runs autostart entries, so if PipeWire is started from
+  autostart (the Void Handbook suggests linking pipewire.desktop into
+  /etc/xdg/autostart), it loses that race every time. The fix: a patch to
+  start-cosmic that starts PipeWire inside the session's D-Bus, waits up to
+  5 seconds for the PulseAudio socket, then starts cosmic-session.
+  - With this branch: remove the autostart link if you made one
+    (`sudo rm /etc/xdg/autostart/pipewire.desktop`); start-cosmic starts
+    PipeWire now. Leaving it should be harmless (a second copy finds one
+    already running), but I removed it.
+  - PipeWire itself still needs the usual Void setup (wireplumber and
+    pipewire-pulse in /etc/pipewire/pipewire.conf.d). Check with
+    `pactl info`, which should say "PulseAudio (on PipeWire ...)".
+  - The fix only applies when COSMIC is started through start-cosmic. See
+    the greetd note below.
+  - Quick check on an affected build: `pkill -f cosmic-settings-daemon`,
+    then `cosmic-settings-daemon &` once you're logged in. If CPU drops to
+    near 0, it's this. cosmic-session does not restart the daemon by itself.
+- **cosmic-monitor graphs draw in the wrong place.** Tables and numbers are
+  correct, but the graphs come out oversized and offset across the window.
+  Seen on Haswell graphics (i5-4210U); display scaling is not the cause.
+  Not solved yet. Suspect: Mesa's incomplete Vulkan driver for Haswell.
+  Things to try: `WGPU_BACKEND=gl cosmic-monitor`.
 - **Display scaling in COSMIC Settings only works when increasing.** Going
   from 100% down to 90% does nothing. Workaround: pick a lower value first
   (e.g. 75%), then scale up to 90%. Seen on one machine; not checked whether
@@ -117,7 +151,19 @@ here.
 - **greetd launch path:** logging in through tuigreet with the config above
   starts COSMIC. It can go through `--cmd cosmic-session` or through the
   installed session file (`/usr/bin/start-cosmic`), depending on whether a
-  session is picked. I have not tested the two paths separately.
+  session is picked. Going through start-cosmic matters now: it sets up the
+  session's D-Bus and starts PipeWire first (see the CPU issue above), and
+  plain `cosmic-session` skips both. Using `--cmd start-cosmic` in the
+  tuigreet line is probably the safer choice; I have not tested that change.
+- **COSMIC's log output goes to tty7.** cosmic-session writes its own
+  messages and those of every COSMIC component to its terminal, which with
+  greetd is the console under the desktop (`vt = 7`), so you never see
+  them. To read the last screenful:
+  `sudo cat /dev/vcs7 | fold -w 160 | grep -v '^ *$' | tail -40`
+  (adjust 160 if the lines wrap oddly). Harmless messages you'll see there:
+  "Failed to sync with greeter. Permission denied", "failed to start
+  cosmic-greeter" (not installed; tuigreet is used instead), and "Failed to
+  connect to journald".
 - Build warnings (unused variables in cosmic-panel, dead code in cosmic-osd,
   a future-incompat note for proc-macro-error2) are harmless.
 
