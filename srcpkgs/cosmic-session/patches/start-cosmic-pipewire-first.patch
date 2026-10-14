@@ -1,0 +1,31 @@
+diff --git a/data/start-cosmic b/data/start-cosmic
+index a947e16..735bdd5 100755
+--- a/data/start-cosmic
++++ b/data/start-cosmic
+@@ -95,9 +95,24 @@ if command -v systemctl >/dev/null; then
+     done
+ fi
+ 
++# Void (runit): start PipeWire before cosmic-session. cosmic-settings-daemon
++# 1.0.x spins at 100% CPU forever if the PulseAudio server (pipewire-pulse)
++# isn't up when it starts, and cosmic-session starts it before its autostart
++# entries. PipeWire has to run inside the session bus, so it is started
++# inside dbus-run-session, then we wait up to 5 s for the pulse socket.
++start_session='
++if command -v pipewire >/dev/null 2>&1 && ! pgrep -u "$(id -u)" -x pipewire >/dev/null; then
++    pipewire &
++    for _ in $(seq 50); do
++        [ -S "${XDG_RUNTIME_DIR}/pulse/native" ] && break
++        sleep 0.1
++    done
++fi
++exec /usr/bin/cosmic-session'
++
+ # Run cosmic-session
+ if [[ -z "${DBUS_SESSION_BUS_ADDRESS}" ]]; then
+-    exec /usr/bin/dbus-run-session -- /usr/bin/cosmic-session
++    exec /usr/bin/dbus-run-session -- /bin/bash -c "${start_session}"
+ else
+-    exec /usr/bin/cosmic-session
++    exec /bin/bash -c "${start_session}"
+ fi
